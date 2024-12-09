@@ -56,3 +56,14 @@ class TrelloManager:
         params['name'] = new_name
         response = requests.put(url, params=params)
         response.raise_for_status()
+    
+        # Function to update the description of a card
+    def update_card_description(self, card_id, description=""):
+        """
+        Updates the description of a card.
+        By default, it clears the description.
+        """
+        url, params = self.build_url(f"cards/{card_id}")
+        params['desc'] = description
+        response = requests.put(url, params=params)
+        response.raise_for_status()

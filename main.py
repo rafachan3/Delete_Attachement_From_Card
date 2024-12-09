@@ -63,3 +63,22 @@ try:
 
 except requests.exceptions.RequestException as e:
     print(f"Error occurred while retrieving cards from list: {e}")
+
+# DELETING DESCRIPTION FROM CARDS
+try:
+    # Get all cards in the target list
+    cards = trello_manager.get_cards_in_list(os.environ["ENV_LIST_ID"])
+    
+    # Iterate through each card
+    for card in cards:
+        try:
+            # Delete the description by setting it to an empty string
+            trello_manager.update_card_description(card['id'], description="")
+            print(f'Description cleared for card "{card["name"]}".')
+
+        except requests.exceptions.RequestException as e:
+            print(f"Error occurred while clearing description for card '{card['name']}': {e}")
+
+except requests.exceptions.RequestException as e:
+    print(f"Error occurred while retrieving cards from list: {e}")
+
