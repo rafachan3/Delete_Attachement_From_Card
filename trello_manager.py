@@ -1,3 +1,4 @@
+import re
 import os
 from dotenv import load_dotenv
 import requests
@@ -19,6 +20,7 @@ class TrelloManager:
         url = f"{self.BASE_URL}/{endpoint}"
         params = {'key': self.API_KEY, 'token': self.API_TOKEN}
         if kwargs:
+            # Update the parameters with any additional keyword arguments provided
             params.update(kwargs)
         return url, params
 
@@ -41,4 +43,16 @@ class TrelloManager:
         url, params = self.build_url(f"cards/{card_id}/attachments/{attachment_id}")
         response = requests.delete(url, params=params)
         response.raise_for_status()
-        
+
+    # Function to clean and harmonize card names
+    def clean_card_name(self, card_name):
+        # Define the regex pattern to extract <name>
+        match = re.search(r"Propuesta(?: de renovación(?: de tu seguro medico)?(?: de seguro medico)?)? \((.+?)\)", card_name)
+        return match.group(1) if match else card_name  # Return original name if no match is found
+    
+    # Function to update the name of a card
+    def update_card_name(self, card_id, new_name):
+        url, params = self.build_url(f"cards/{card_id}")
+        params['name'] = new_name
+        response = requests.put(url, params=params)
+        response.raise_for_status()
