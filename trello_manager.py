@@ -47,7 +47,7 @@ class TrelloManager:
     # Function to clean and harmonize card names
     def clean_card_name(self, card_name):
         # Define the regex pattern to extract <name>
-        match = re.search(r"Propuesta(?: de renovación(?: de tu seguro medico)?(?: de seguro medico)?)? \((.+?)\)", card_name)
+        match = re.search(r"\((.+?)\)", card_name)
         return match.group(1) if match else card_name  # Return original name if no match is found
     
     # Function to update the name of a card
