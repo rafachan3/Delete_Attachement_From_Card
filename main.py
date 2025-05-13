@@ -67,3 +67,6 @@ def run_automation():
     except requests.exceptions.RequestException as e:
         log_message(f"Error occurred while retrieving cards from list: {e}")
 
+if __name__ == "__main__":
+    run_automation()
+    log_message("Automation completed.")
