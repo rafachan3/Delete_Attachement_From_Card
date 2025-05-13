@@ -2,21 +2,22 @@ from trello_manager import TrelloManager
 import os
 from dotenv import load_dotenv
 import requests
-import tkinter as tk
-from tkinter import scrolledtext
+from datetime import datetime
 
 load_dotenv()
 
 trello_manager = TrelloManager()
 
-def run_functionality():
-    # Clear the log window
-    log_text.delete(1.0, tk.END)
 
-    def log_message(message):
-        log_text.insert(tk.END, message + "\n")
-        log_text.see(tk.END)  # Auto-scroll to the end
+def log_message(message):
+    """Log to console and file for GitHub Actions."""
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    formatted = f"[{timestamp}] {message}"
+    print(formatted)  # Visible in GitHub Actions logs
+    with open("trello_automation.log", "a") as f:
+        f.write(formatted + "\n")
 
+def run_automation(): 
     # DELETING ATTACHMENTS FROM CARDS
     try:
         cards = trello_manager.get_cards_in_list(os.environ["ENV_LIST_ID"])
@@ -66,17 +67,3 @@ def run_functionality():
     except requests.exceptions.RequestException as e:
         log_message(f"Error occurred while retrieving cards from list: {e}")
 
-# Setting up the GUI
-root = tk.Tk()
-root.title("Limpiar Tarjetas de Renovaciones")
-
-# Add a button to trigger functionality
-run_button = tk.Button(root, text="Correr Automatización", command=run_functionality)
-run_button.pack(pady=10)
-
-# Add a scrolled text widget to display logs
-log_text = scrolledtext.ScrolledText(root, width=80, height=20, wrap=tk.WORD)
-log_text.pack(pady=10)
-
-# Start the GUI event loop
-root.mainloop()

@@ -1,0 +1,41 @@
+name: Trello Automation
+
+on:
+  # Scheduled runs (CST = GMT-6)
+  schedule:
+    - cron: '0 6 * * *'   # Midnight CST (06:00 UTC)
+    - cron: '0 18 * * *'  # Midday CST (18:00 UTC)
+  
+  # Manual trigger
+  workflow_dispatch:
+
+jobs:
+  automate:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        run: pip install requests python-dotenv
+
+      - name: Run automation
+        env:
+          ENV_API_KEY: ${{ secrets.TRELLO_API_KEY }}
+          ENV_API_TOKEN: ${{ secrets.TRELLO_API_TOKEN }}
+          ENV_LIST_ID: ${{ secrets.TRELLO_LIST_ID }}
+          ATTACHMENT_NAME_TO_DELETE: ${{ secrets.ATTACHMENT_NAME }}
+        run: python src/main.py
+
+      - name: Upload logs
+        if: always()  # Upload logs even if job fails
+        uses: actions/upload-artifact@v3
+        with:
+          name: trello-logs-${{ github.run_id }}
+          path: trello_automation.log
