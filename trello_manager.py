@@ -124,3 +124,68 @@ class TrelloManager:
         params['desc'] = description
         response = requests.put(url, params=params)
         response.raise_for_status()
+
+    def update_card_custom_field(self, card_id, field_id, value):
+        """
+        Update a custom field value on a specified Trello card.
+        
+        Args:
+            card_id (str): The ID of the Trello card.
+            field_id (str): The ID of the custom field.
+            value (str): The new value for the custom field.
+        
+        Returns:
+            None
+        """
+        url, params = self.build_url(f"cards/{card_id}/customField/{field_id}/item")
+        data = {'value': {'text': value}}
+        response = requests.put(url, params=params, json=data)
+        response.raise_for_status()
+
+    def get_card_details(self, card_id):
+        """
+        Get detailed information about a specific Trello card including description.
+        
+        Args:
+            card_id (str): The ID of the Trello card.
+        
+        Returns:
+            dict: Card details including description.
+        """
+        url, params = self.build_url(f"cards/{card_id}")
+        response = requests.get(url, params=params)
+        response.raise_for_status()
+        return response.json()
+
+    def extract_name_and_policy(self, card_name, card_description):
+        """
+        Extract person's name from description and policy number from card name.
+        
+        Args:
+            card_name (str): The original card name (email subject).
+            card_description (str): The card description (email body).
+        
+        Returns:
+            tuple: (person_name, policy_number)
+        """
+        # Extract policy number (last 12 characters from card name)
+        policy_number = card_name[-12:] if len(card_name) >= 12 else card_name
+        
+        # Extract person's name (first line of description)
+        person_name = None
+        should_process = False
+        
+        if card_description and card_description.strip():
+            lines = card_description.split('\n')
+            if lines:
+                first_line = lines[0].strip()
+                # Check if first line looks like a person's name
+                # (has at least 2 words and doesn't look like email headers or generic text)
+                if (first_line and 
+                    len(first_line.split()) >= 2 and  # At least 2 words (first + last name)
+                    not first_line.startswith(('Re:', 'Fwd:', 'Subject:', 'From:')) and  # Not email headers
+                    not first_line.lower().startswith(('hola', 'buenos', 'buen', 'estimado'))):  # Not greetings
+                    person_name = first_line
+                    should_process = True
+        
+        return person_name, policy_number, should_process
