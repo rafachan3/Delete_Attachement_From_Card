@@ -28,6 +28,7 @@ jobs:
           ENV_API_TOKEN: ${{ secrets.TRELLO_API_TOKEN }}
           ENV_LIST_ID: ${{ secrets.TRELLO_LIST_ID }}
           ATTACHMENT_NAME_TO_DELETE: ${{ secrets.ATTACHMENT_NAME }}
+          POLICY_NUMBER_CUSTOM_FIELD_ID: ${{ secrets.POLICY_NUMBER_CUSTOM_FIELD_ID }}
         run: python main.py
 
       - name: Upload logs
